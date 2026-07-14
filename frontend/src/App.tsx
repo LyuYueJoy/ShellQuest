@@ -9,6 +9,7 @@ import {
 import AppLayout from "./components/AppLayout/AppLayout";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function Page({ title }: { title: string }) {
   return (
@@ -24,48 +25,45 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public pages: these do not display the Navbar. */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
         {/* Application pages: these use AppLayout and Navbar. */}
         <Route element={<AppLayout />}>
-          <Route
-            path="/"
-            element={<Page title="Dashboard" />}
-          />
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forum" element={<Page title="Forum" />} />
 
-          <Route
-            path="/tortoises"
-            element={<Page title="My Tortoises" />}
-          />
+          {/* Login-required routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Page title="Dashboard" />} />
 
-          <Route
-            path="/tasks"
-            element={<Page title="Care Tasks" />}
-          />
+            <Route
+              path="/tortoises"
+              element={<Page title="My Tortoises" />}
+            />
 
-          <Route
-            path="/avatar"
-            element={<Page title="Avatar Studio" />}
-          />
+            <Route
+              path="/tasks"
+              element={<Page title="Care Tasks" />}
+            />
 
-          <Route
-            path="/shop"
-            element={<Page title="Shop" />}
-          />
+            <Route
+              path="/avatar"
+              element={<Page title="Avatar Studio" />}
+            />
 
-          <Route
-            path="/forum"
-            element={<Page title="Forum" />}
-          />
+            <Route path="/shop" element={<Page title="Shop" />} />
 
-          <Route
-            path="/chat"
-            element={<Page title="Private Chat" />}
-          />
+            <Route
+              path="/chat"
+              element={<Page title="Private Chat" />}
+            />
+
+            <Route
+              path="*"
+              element={<Navigate to="/forum" replace />}
+            />
+          </Route>
         </Route>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

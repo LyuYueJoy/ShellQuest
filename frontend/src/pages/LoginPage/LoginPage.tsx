@@ -3,7 +3,10 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   Alert,
   CircularProgress,
@@ -47,6 +50,11 @@ const initialFormValues: LoginFormValues = {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const registrationSuccess =
+    location.state?.registrationSuccess === true;
 
   const [formValues, setFormValues] =
     useState<LoginFormValues>(initialFormValues);
@@ -117,12 +125,22 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
 
-      await loginUser({
+        const loginResponse = await loginUser({
         email: formValues.email.trim(),
         password: formValues.password,
-      });
+        });
 
-      navigate("/");
+        sessionStorage.setItem(
+        "shellQuestToken",
+        loginResponse.token,
+        );
+
+        sessionStorage.setItem(
+        "shellQuestUser",
+        JSON.stringify(loginResponse.user),
+        );
+
+        navigate("/", { replace: true });
     } catch (error: unknown) {
       if (error instanceof ApiError && error.status === 401) {
         setApiError("The email or password is incorrect.");
@@ -160,6 +178,11 @@ export default function LoginPage() {
         </LoginHeader>
 
         <LoginForm onSubmit={handleSubmit} noValidate>
+           {registrationSuccess && (
+            <Alert severity="success" role="status">
+                Account created successfully. You can now log in.
+            </Alert>
+            )}
           {apiError && (
             <Alert severity="error" role="alert">
               {apiError}

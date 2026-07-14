@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Container, Drawer, List, ListItemText } from "@mui/material";
-import { Link, useLocation } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import PetsIcon from "@mui/icons-material/Pets";
 
@@ -15,7 +19,11 @@ import {
   NavbarContainer,
   NavbarToolbar,
   NavigationLink,
-  UserAvatar,
+  AuthenticationActions,
+  DrawerAuthenticationActions,
+  LoginActionLink,
+  LogoutActionButton,
+  RegisterActionLink,
 } from "./Navbar.styles";
 
 interface NavigationItem {
@@ -36,7 +44,10 @@ const navigationItems: NavigationItem[] = [
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
-
+  const navigate = useNavigate();
+  const isLoggedIn = sessionStorage.getItem("shellQuestToken") !== null;
+  
+  
   const isActive = (path: string) => {
     if (path === "/") {
       return location.pathname === "/";
@@ -47,6 +58,14 @@ export default function Navbar() {
 
   const closeDrawer = () => {
     setDrawerOpen(false);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("shellQuestToken");
+    sessionStorage.removeItem("shellQuestUser");
+
+    setDrawerOpen(false);
+    navigate("/forum", { replace: true });
   };
 
   return (
@@ -71,7 +90,28 @@ export default function Navbar() {
               ))}
             </DesktopNavigation>
 
-            <UserAvatar>J</UserAvatar>
+            <AuthenticationActions>
+              {isLoggedIn ? (
+                <LogoutActionButton
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  onClick={handleLogout}
+                >
+                  Log out
+                </LogoutActionButton>
+              ) : (
+                <>
+                  <LoginActionLink to="/login">
+                    Log in
+                  </LoginActionLink>
+
+                  <RegisterActionLink to="/register">
+                    Register
+                  </RegisterActionLink>
+                </>
+              )}
+            </AuthenticationActions>
 
             <MobileMenuButton
               aria-label="Open navigation menu"
@@ -119,6 +159,34 @@ export default function Navbar() {
             </Link>
           ))}
         </List>
+        <DrawerAuthenticationActions>
+          {isLoggedIn ? (
+            <LogoutActionButton
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={handleLogout}
+            >
+              Log out
+            </LogoutActionButton>
+          ) : (
+            <>
+              <LoginActionLink
+                to="/login"
+                onClick={closeDrawer}
+              >
+                Log in
+              </LoginActionLink>
+
+              <RegisterActionLink
+                to="/register"
+                onClick={closeDrawer}
+              >
+                Register
+              </RegisterActionLink>
+            </>
+          )}
+        </DrawerAuthenticationActions>
         </DrawerContent>
       </Drawer>
     </>

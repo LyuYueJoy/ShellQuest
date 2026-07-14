@@ -7,6 +7,7 @@ import {
   ListItemButton,
   Toolbar,
   Typography,
+  Button,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -175,6 +176,112 @@ export const DrawerNavigationItem = styled(ListItemButton)(
 
     "&:active": {
       boxShadow: clayPressedShadow,
+    },
+  }),
+);
+export const AuthenticationActions = styled(Box)(
+  ({ theme }) => ({
+    display: "none",
+    alignItems: "center",
+    gap: theme.spacing(1),
+
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+    },
+  }),
+);
+
+export const LoginActionLink = styled(Link)(
+  ({ theme }) => ({
+    minHeight: 42,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "8px 18px",
+    color: theme.palette.primary.dark,
+    backgroundColor: theme.palette.background.paper,
+    border: `2px solid ${theme.palette.primary.main}`,
+    borderRadius: 999,
+    fontWeight: 800,
+    textDecoration: "none",
+    transition:
+      "transform 180ms ease, background-color 180ms ease",
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.light,
+      transform: "translateY(-2px)",
+    },
+
+    "&:active": {
+      transform: "translateY(1px) scale(0.97)",
+      boxShadow: clayPressedShadow,
+    },
+
+    "&:focus-visible": {
+      outline: `3px solid ${theme.palette.primary.light}`,
+      outlineOffset: 3,
+    },
+  }),
+);
+
+export const RegisterActionLink = styled(Link)(
+  ({ theme }) => ({
+    minHeight: 42,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "8px 18px",
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: 999,
+    fontWeight: 800,
+    textDecoration: "none",
+    boxShadow: `
+      5px 6px 12px rgba(53, 74, 56, 0.22),
+      inset 2px 2px 4px rgba(255, 255, 255, 0.25)
+    `,
+    transition:
+      "transform 180ms ease, background-color 180ms ease",
+
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.dark,
+      transform: "translateY(-2px)",
+    },
+
+    "&:active": {
+      transform: "translateY(1px) scale(0.97)",
+      boxShadow: clayPressedShadow,
+    },
+
+    "&:focus-visible": {
+      outline: `3px solid ${theme.palette.primary.light}`,
+      outlineOffset: 3,
+    },
+  }),
+);
+
+export const LogoutActionButton = styled(Button)(
+  ({ theme }) => ({
+    minHeight: 42,
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.primary.main,
+
+    "&:hover": {
+      backgroundColor: theme.palette.primary.dark,
+    },
+  }),
+);
+
+export const DrawerAuthenticationActions = styled(Box)(
+  ({ theme }) => ({
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(2),
+
+    "& a, & button": {
+      width: "100%",
     },
   }),
 );

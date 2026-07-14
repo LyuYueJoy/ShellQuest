@@ -1,6 +1,7 @@
 import { apiRequest } from "./apiClient";
 import type {
   LoginRequest,
+  LoginResponse,
   RegisterRequest,
   UserResponse,
 } from "../types/auth";
@@ -16,8 +17,8 @@ export function registerUser(
 
 export function loginUser(
   loginData: LoginRequest,
-): Promise<void> {
-  return apiRequest<void>("/api/User/login", {
+): Promise<LoginResponse> {
+  return apiRequest<LoginResponse>("/api/User/login", {
     method: "POST",
     body: JSON.stringify(loginData),
   });
