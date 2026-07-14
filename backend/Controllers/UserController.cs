@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+
 namespace backend.Controllers
 {
     [ApiController]
@@ -24,6 +26,7 @@ namespace backend.Controllers
         }
 
         // POST: api/user/register
+        [AllowAnonymous]
         [HttpPost("register")]
         public ActionResult<UserResponse> Register(RegisterRequest request)
         {
@@ -41,7 +44,8 @@ namespace backend.Controllers
             {
                 UserName = request.UserName.Trim(),
                 Email = email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = "User"
             };
 
             User createdUser = _repo.CreateUser(user);
@@ -56,6 +60,7 @@ namespace backend.Controllers
         }
 
         // POST: api/user/login
+        [AllowAnonymous]
         [HttpPost("login")]
         public ActionResult Login(LoginRequest request)
         {
@@ -107,7 +112,8 @@ namespace backend.Controllers
                     user.UserId.ToString()
                 ),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             SymmetricSecurityKey key = new SymmetricSecurityKey(
@@ -136,8 +142,52 @@ namespace backend.Controllers
             {
                 UserId = user.UserId,
                 UserName = user.UserName,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.Role
             };
         }
+
+
+        // test
+        [Authorize]
+        [HttpGet("profile")]
+        public IActionResult GetProfile()
+        {
+            string? userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier
+            );
+
+            string? userName = User.FindFirstValue(
+                ClaimTypes.Name
+            );
+
+            string? email = User.FindFirstValue(
+                ClaimTypes.Email
+            );
+
+            string? role = User.FindFirstValue(
+                ClaimTypes.Role
+            );
+
+            return Ok(new
+            {
+                userId,
+                userName,
+                email,
+                role
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin-only")]
+        public IActionResult AdminOnly()
+        {
+            return Ok(new
+            {
+                message = "You are an administrator."
+            });
+        }
+
+
     }
 }
