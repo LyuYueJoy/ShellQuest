@@ -6,7 +6,9 @@ import {
   Routes,
 } from "react-router-dom";
 
-import Navbar from "./components/Navbar/Navbar";
+import AppLayout from "./components/AppLayout/AppLayout";
+import LoginPage from "./pages/LoginPage/LoginPage";
+import RegisterPage from "./pages/RegisterPage/RegisterPage";
 
 function Page({ title }: { title: string }) {
   return (
@@ -21,27 +23,50 @@ function Page({ title }: { title: string }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <Navbar />
+      <Routes>
+        {/* Public pages: these do not display the Navbar. */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        {/* Application pages: these use AppLayout and Navbar. */}
+        <Route element={<AppLayout />}>
+          <Route
+            path="/"
+            element={<Page title="Dashboard" />}
+          />
 
-      <Box component="main">
-        <Routes>
-          <Route path="/" element={<Page title="Dashboard" />} />
           <Route
             path="/tortoises"
             element={<Page title="My Tortoises" />}
           />
-          <Route path="/tasks" element={<Page title="Care Tasks" />} />
+
+          <Route
+            path="/tasks"
+            element={<Page title="Care Tasks" />}
+          />
+
           <Route
             path="/avatar"
             element={<Page title="Avatar Studio" />}
           />
-          <Route path="/shop" element={<Page title="Shop" />} />
-          <Route path="/forum" element={<Page title="Forum" />} />
-          <Route path="/chat" element={<Page title="Private Chat" />} />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Box>
+          <Route
+            path="/shop"
+            element={<Page title="Shop" />}
+          />
+
+          <Route
+            path="/forum"
+            element={<Page title="Forum" />}
+          />
+
+          <Route
+            path="/chat"
+            element={<Page title="Private Chat" />}
+          />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }

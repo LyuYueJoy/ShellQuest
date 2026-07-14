@@ -49,6 +49,22 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCorsPolicy, policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 //// Configure the HTTP request pipeline.
@@ -57,6 +73,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+app.UseCors(FrontendCorsPolicy);
 
 app.UseHttpsRedirection();
 
