@@ -1,7 +1,11 @@
 ﻿using backend.Data;
+using backend.DTOs;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 namespace backend.Controllers
 {
     [ApiController]
@@ -9,49 +13,131 @@ namespace backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly IWebAPIRepo _repo;
+        private readonly IConfiguration _configuration;
 
-        public UserController(IWebAPIRepo repo)
+        public UserController(
+            IWebAPIRepo repo,
+            IConfiguration configuration)
         {
             _repo = repo;
+            _configuration = configuration;
         }
 
-
-        // GET: api/user
-        [HttpGet("getUsers")]
-        public ActionResult<IEnumerable<User>> GetUsers()
+        // POST: api/user/register
+        [HttpPost("register")]
+        public ActionResult<UserResponse> Register(RegisterRequest request)
         {
-            var users = _repo.GetAllUsers();
+            string email = request.Email.Trim().ToLower();
 
-            return Ok(users);
+            if (_repo.EmailExists(email))
+            {
+                return Conflict(new
+                {
+                    message = "This email address is already registered."
+                });
+            }
+
+            User user = new User
+            {
+                UserName = request.UserName.Trim(),
+                Email = email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+            };
+
+            User createdUser = _repo.CreateUser(user);
+
+            UserResponse response = ToUserResponse(createdUser);
+
+            return CreatedAtAction(
+                nameof(GetUser),
+                new { id = createdUser.UserId },
+                response
+            );
         }
 
+        // POST: api/user/login
+        [HttpPost("login")]
+        public ActionResult Login(LoginRequest request)
+        {
+            User? user = _repo.GetUserByEmail(request.Email);
 
-        // GET: api/user/1
+            if (user == null ||
+                !BCrypt.Net.BCrypt.Verify(
+                    request.Password,
+                    user.PasswordHash))
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid email or password."
+                });
+            }
+
+            string token = CreateJwtToken(user);
+
+            return Ok(new
+            {
+                token,
+                user = ToUserResponse(user)
+            });
+        }
+
+        // GET: api/user/getUser/1
         [HttpGet("getUser/{id}")]
-        public ActionResult<User> GetUser(int id)
+        public ActionResult<UserResponse> GetUser(int id)
         {
-            var user = _repo.GetUserById(id);
+            User? user = _repo.GetUserById(id);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            return Ok(user);
+            return Ok(ToUserResponse(user));
         }
 
-
-        // POST: api/user
-        [HttpPost("addUser")]
-        public ActionResult<User> CreateUser(User user)
+        private string CreateJwtToken(User user)
         {
-            var createdUser = _repo.CreateUser(user);
+            string jwtKey = _configuration["Jwt:Key"]
+                ?? throw new InvalidOperationException("JWT key is missing.");
 
-            return CreatedAtAction(
-                nameof(GetUser),
-                new { id = createdUser.UserId },
-                createdUser
+            Claim[] claims =
+            {
+                new Claim(
+                    ClaimTypes.NameIdentifier,
+                    user.UserId.ToString()
+                ),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)
             );
+
+            SigningCredentials credentials = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256
+            );
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private static UserResponse ToUserResponse(User user)
+        {
+            return new UserResponse
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                Email = user.Email
+            };
         }
     }
 }

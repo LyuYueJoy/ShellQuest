@@ -1,12 +1,11 @@
 ﻿using backend.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace backend.Data
 {
-    public class WebAPIRepo:IWebAPIRepo
+    public class WebAPIRepo : IWebAPIRepo
     {
-        private WebAPIDBContext _context;
+        private readonly WebAPIDBContext _context;
 
         public WebAPIRepo(WebAPIDBContext context)
         {
@@ -18,20 +17,35 @@ namespace backend.Data
             return _context.Users.ToList();
         }
 
-        public User GetUserById(int id)
+        public User? GetUserById(int id)
         {
-            return _context.Users.FirstOrDefault(u => u.UserId == id);
+            return _context.Users.FirstOrDefault(user => user.UserId == id);
+        }
+
+        public User? GetUserByEmail(string email)
+        {
+            string normalizedEmail = email.Trim().ToLower();
+
+            return _context.Users.FirstOrDefault(
+                user => user.Email.ToLower() == normalizedEmail
+            );
+        }
+
+        public bool EmailExists(string email)
+        {
+            string normalizedEmail = email.Trim().ToLower();
+
+            return _context.Users.Any(
+                user => user.Email.ToLower() == normalizedEmail
+            );
         }
 
         public User CreateUser(User user)
         {
             EntityEntry<User> entry = _context.Users.Add(user);
-            User user1 = entry.Entity;
-
             _context.SaveChanges();
-            return user1;
+
+            return entry.Entity;
         }
     }
-
-
 }

@@ -1,22 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace backend.Models
-{
-    public class User
-    {
-        [Key]
-        public int UserId { get; set; }
 
+namespace backend.DTOs
+{
+    public class RegisterRequest
+    {
         [Required]
         [MaxLength(50)]
         public string UserName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        [MaxLength(255)]
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string PasswordHash { get; set; } = string.Empty;
-
+        [MinLength(8)]
+        public string Password { get; set; } = string.Empty;
     }
 }
