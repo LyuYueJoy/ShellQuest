@@ -10,6 +10,8 @@ import AppLayout from "./components/AppLayout/AppLayout";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import MyTortoisesPage from "./pages/MyTortoisesPage/MyTortoisesPage";
+import AddTortoisePage from "./pages/AddTortoisePage/AddTortoisePage";
 
 function Page({ title }: { title: string }) {
   return (
@@ -38,7 +40,12 @@ export default function App() {
 
             <Route
               path="/tortoises"
-              element={<Page title="My Tortoises" />}
+              element={<MyTortoisesPage/>}
+            />
+
+            <Route
+              path="/tortoises/new"
+              element={<AddTortoisePage />}
             />
 
             <Route
