@@ -1,10 +1,8 @@
-import {
-  ArrowBackRounded,
-  CloudUploadRounded,
-  ImageRounded,
-  PetsRounded,
-  SaveRounded,
-} from "@mui/icons-material";
+import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
+import CloudUploadRounded from "@mui/icons-material/CloudUploadRounded";
+import ImageRounded from "@mui/icons-material/ImageRounded";
+import PetsRounded from "@mui/icons-material/PetsRounded";
+import SaveRounded from "@mui/icons-material/SaveRounded";
 import {
   Alert,
   Box,

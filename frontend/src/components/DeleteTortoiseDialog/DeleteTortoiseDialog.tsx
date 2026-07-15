@@ -1,7 +1,5 @@
-import {
-  DeleteForeverRounded,
-  WarningAmberRounded,
-} from "@mui/icons-material";
+import DeleteForeverRounded from "@mui/icons-material/DeleteForeverRounded";
+import WarningAmberRounded from "@mui/icons-material/WarningAmberRounded";
 import {
   Alert,
   Button,

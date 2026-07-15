@@ -1,11 +1,9 @@
-import {
-  AddRounded,
-  EditRounded,
-  PetsRounded,
-  RefreshRounded,
-  VisibilityRounded,
-  DeleteOutlineRounded,
-} from "@mui/icons-material";
+import AddRounded from "@mui/icons-material/AddRounded";
+import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
+import EditRounded from "@mui/icons-material/EditRounded";
+import PetsRounded from "@mui/icons-material/PetsRounded";
+import RefreshRounded from "@mui/icons-material/RefreshRounded";
+import VisibilityRounded from "@mui/icons-material/VisibilityRounded";
 import {
   Alert,
   Box,

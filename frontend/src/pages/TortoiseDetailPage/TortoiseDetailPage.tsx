@@ -1,12 +1,10 @@
-import {
-  ArrowBackRounded,
-  CalendarMonthRounded,
-  EditRounded,
-  MonitorWeightRounded,
-  NotesRounded,
-  PetsRounded,
-  RefreshRounded,
-} from "@mui/icons-material";
+import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
+import CalendarMonthRounded from "@mui/icons-material/CalendarMonthRounded";
+import EditRounded from "@mui/icons-material/EditRounded";
+import MonitorWeightRounded from "@mui/icons-material/MonitorWeightRounded";
+import NotesRounded from "@mui/icons-material/NotesRounded";
+import PetsRounded from "@mui/icons-material/PetsRounded";
+import RefreshRounded from "@mui/icons-material/RefreshRounded";
 import {
   Alert,
   Button,
