@@ -13,6 +13,8 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import MyTortoisesPage from "./pages/MyTortoisesPage/MyTortoisesPage";
 import AddTortoisePage from "./pages/AddTortoisePage/AddTortoisePage";
 import TortoiseDetailPage from "./pages/TortoiseDetailPage/TortoiseDetailPage";
+import EditTortoisePage from "./pages/EditTortoisePage/EditTortoisePage";
+
 function Page({ title }: { title: string }) {
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -47,6 +49,11 @@ export default function App() {
               path="/tortoises/new"
               element={<AddTortoisePage />}
             />
+            <Route
+              path="/tortoises/:tortoiseId/edit"
+              element={<EditTortoisePage />}
+            />
+
 
             <Route
               path="/tortoises/:tortoiseId"
