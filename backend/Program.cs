@@ -1,21 +1,36 @@
 using backend.Data;
+using backend.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using backend.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-//// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<
+        BearerSecuritySchemeTransformer
+    >();
+});
+
 builder.Services.AddDbContext<WebAPIDBContext>(options =>
-            options.UseSqlite(builder.Configuration["WebAPIConnection"]));
+    options.UseSqlite(
+        builder.Configuration["WebAPIConnection"]
+    )
+);
 
 builder.Services.AddScoped<IWebAPIRepo, WebAPIRepo>();
+
+builder.Services.AddScoped<
+    ITortoiseRepository,
+    TortoiseRepository
+>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -67,12 +82,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
 app.UseCors(FrontendCorsPolicy);
 
 app.UseHttpsRedirection();

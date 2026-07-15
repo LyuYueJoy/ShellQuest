@@ -65,13 +65,20 @@ export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+  const token = sessionStorage.getItem("shellQuestToken");
+
+    const headers = new Headers(options.headers);
+
+    headers.set("Content-Type", "application/json");
+
+    if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    const response = await fetch(`${apiBaseUrl}${endpoint}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+    headers,
+    });
 
   const responseBody = await parseResponseBody(response);
 

@@ -21,5 +21,7 @@ namespace backend.Models
         [Required]
         [MaxLength(20)]
         public string Role { get; set; } = "User";
+
+        public ICollection<Tortoise> Tortoises { get; set; } = new List<Tortoise>();
     }
 }
