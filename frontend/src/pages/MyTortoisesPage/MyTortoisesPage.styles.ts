@@ -5,8 +5,11 @@ import {
   Chip,
   Container,
   styled,
+  IconButton,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
+
+
 
 export const PageRoot = styled(Box)(({ theme }) => ({
   position: "relative",
@@ -222,3 +225,16 @@ export const EmptyStateIcon = styled(Box)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.primary.light, 0.45),
   boxShadow: theme.shadows[4],
 }));
+
+export const DeleteActionButton = styled(IconButton)(
+  ({ theme }) => ({
+    flexShrink: 0,
+    color: theme.palette.error.main,
+    backgroundColor: alpha(theme.palette.error.main, 0.08),
+
+    "&:hover": {
+      color: theme.palette.error.dark,
+      backgroundColor: alpha(theme.palette.error.main, 0.15),
+    },
+  }),
+);

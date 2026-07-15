@@ -4,6 +4,7 @@ import {
   PetsRounded,
   RefreshRounded,
   VisibilityRounded,
+  DeleteOutlineRounded,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -13,13 +14,15 @@ import {
   Chip,
   Skeleton,
   Typography,
+  Snackbar,
+  Tooltip,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getTortoises } from "../../services/tortoiseService";
+import { getTortoises, deleteTortoise } from "../../services/tortoiseService";
 import type { TortoiseResponse } from "../../types/tortoise";
-
+import DeleteTortoiseDialog from "../../components/DeleteTortoiseDialog/DeleteTortoiseDialog";
 import {
   AddButton,
   BottomDecoration,
@@ -42,6 +45,7 @@ import {
   TortoiseCardRoot,
   TortoiseImage,
   WeightChip,
+  DeleteActionButton,
 } from "./MyTortoisesPage.styles";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.replace(
@@ -99,11 +103,15 @@ function formatWeight(weightGrams: number | null): string {
   return `${weightGrams.toLocaleString()} g`;
 }
 
+interface TortoiseCardProps {
+  tortoise: TortoiseResponse;
+  onDelete: (tortoise: TortoiseResponse) => void;
+}
+
 function TortoiseCard({
   tortoise,
-}: {
-  tortoise: TortoiseResponse;
-}) {
+  onDelete,
+}: TortoiseCardProps) {
   const navigate = useNavigate();
   const photoUrl = getPhotoUrl(tortoise.photoUrl);
 
@@ -209,6 +217,15 @@ function TortoiseCard({
         >
           Edit
         </CardActionButton>
+
+        <Tooltip title={`Delete ${tortoise.name}`}>
+            <DeleteActionButton
+                aria-label={`Delete ${tortoise.name}`}
+                onClick={() => onDelete(tortoise)}
+            >
+                <DeleteOutlineRounded />
+            </DeleteActionButton>
+            </Tooltip>
       </CardButtons>
     </TortoiseCardRoot>
   );
@@ -265,10 +282,69 @@ export default function MyTortoisesPage() {
     }
   }, []);
 
+  const [selectedTortoise, setSelectedTortoise] =
+  useState<TortoiseResponse | null>(null);
+
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const [deleteError, setDeleteError] = useState<
+    string | null
+    >(null);
+
+    const [successMessage, setSuccessMessage] = useState<
+    string | null
+    >(null);
+
   useEffect(() => {
     void loadTortoises();
   }, [loadTortoises]);
+  function openDeleteDialog(tortoise: TortoiseResponse) {
+  setSelectedTortoise(tortoise);
+  setDeleteError(null);
+}
 
+function closeDeleteDialog() {
+    if (isDeleting) {
+        return;
+    }
+
+    setSelectedTortoise(null);
+    setDeleteError(null);
+    }
+
+    async function confirmDelete() {
+    if (!selectedTortoise) {
+        return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+        await deleteTortoise(selectedTortoise.tortoiseId);
+
+        setTortoises((currentTortoises) =>
+        currentTortoises.filter(
+            (tortoise) =>
+            tortoise.tortoiseId !==
+            selectedTortoise.tortoiseId,
+        ),
+        );
+
+        setSuccessMessage(
+        `${selectedTortoise.name} was deleted.`,
+        );
+        setSelectedTortoise(null);
+    } catch (error) {
+        setDeleteError(
+        error instanceof Error
+            ? error.message
+            : "This tortoise could not be deleted.",
+        );
+    } finally {
+        setIsDeleting(false);
+    }
+    }
   return (
     <PageRoot>
       <TopDecoration aria-hidden="true" />
@@ -399,12 +475,40 @@ export default function MyTortoisesPage() {
                   <TortoiseCard
                     key={tortoise.tortoiseId}
                     tortoise={tortoise}
+                    onDelete={openDeleteDialog}
                   />
                 ))}
               </CardsGrid>
             </>
           )}
       </PageContainer>
+
+      <DeleteTortoiseDialog
+        open={selectedTortoise !== null}
+        tortoiseName={selectedTortoise?.name ?? ""}
+        isDeleting={isDeleting}
+        errorMessage={deleteError}
+        onClose={closeDeleteDialog}
+        onConfirm={() => void confirmDelete()}
+        />
+
+        <Snackbar
+        open={successMessage !== null}
+        autoHideDuration={4000}
+        onClose={() => setSuccessMessage(null)}
+        anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+        }}
+        >
+        <Alert
+            severity="success"
+            variant="filled"
+            onClose={() => setSuccessMessage(null)}
+        >
+            {successMessage}
+        </Alert>
+        </Snackbar>
     </PageRoot>
   );
 }
