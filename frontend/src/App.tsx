@@ -14,6 +14,7 @@ import MyTortoisesPage from "./pages/MyTortoisesPage/MyTortoisesPage";
 import AddTortoisePage from "./pages/AddTortoisePage/AddTortoisePage";
 import TortoiseDetailPage from "./pages/TortoiseDetailPage/TortoiseDetailPage";
 import EditTortoisePage from "./pages/EditTortoisePage/EditTortoisePage";
+import DashboardPage from "./pages/DashboardPage/DashboardPage";
 
 function Page({ title }: { title: string }) {
   return (
@@ -38,7 +39,7 @@ export default function App() {
 
           {/* Login-required routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Page title="Dashboard" />} />
+            <Route path="/" element={<DashboardPage />} />
 
             <Route
               path="/tortoises"
