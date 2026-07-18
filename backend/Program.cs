@@ -27,11 +27,17 @@ builder.Services.AddDbContext<WebAPIDBContext>(options =>
 
 builder.Services.AddScoped<IWebAPIRepo, WebAPIRepo>();
 
+
 builder.Services.AddScoped<
     ITortoiseRepository,
     TortoiseRepository
 >();
+builder.Services.AddSingleton(TimeProvider.System);
 
+builder.Services.AddScoped<
+    IDashboardRepository,
+    DashboardRepository
+>();
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

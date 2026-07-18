@@ -22,6 +22,26 @@ namespace backend.Models
         [MaxLength(20)]
         public string Role { get; set; } = "User";
 
+        [Range(0, int.MaxValue)]
+        public int TotalXp { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int Coins { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int CurrentStreak { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int LongestStreak { get; set; }
+
+        public DateOnly? LastActiveDate { get; set; }
+
         public ICollection<Tortoise> Tortoises { get; set; } = new List<Tortoise>();
+
+        public ICollection<DailyCareTask> DailyCareTasks { get; set; }
+    = new List<DailyCareTask>();
+
+        public ICollection<UserAchievement> Achievements { get; set; }
+            = new List<UserAchievement>();
     }
 }

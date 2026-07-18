@@ -29,5 +29,8 @@ namespace backend.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public User Owner { get; set; } = null!;
+
+        public ICollection<DailyCareTask> DailyCareTasks { get; set; }
+    = new List<DailyCareTask>();
     }
 }

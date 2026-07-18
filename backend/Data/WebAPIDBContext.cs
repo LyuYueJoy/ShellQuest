@@ -9,6 +9,11 @@ namespace backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Tortoise> Tortoises => Set<Tortoise>();
 
+        public DbSet<DailyCareTask> DailyCareTasks => Set<DailyCareTask>();
+
+        public DbSet<UserAchievement> UserAchievements =>
+            Set<UserAchievement>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -22,6 +27,42 @@ namespace backend.Data
                 .WithMany(user => user.Tortoises)
                 .HasForeignKey(tortoise => tortoise.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DailyCareTask>()
+    .HasOne(task => task.Owner)
+    .WithMany(user => user.DailyCareTasks)
+    .HasForeignKey(task => task.OwnerId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DailyCareTask>()
+                .HasOne(task => task.Tortoise)
+                .WithMany(tortoise => tortoise.DailyCareTasks)
+                .HasForeignKey(task => task.TortoiseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DailyCareTask>()
+                .HasIndex(task => new
+                {
+                    task.OwnerId,
+                    task.TortoiseId,
+                    task.TaskType,
+                    task.TaskDate
+                })
+                .IsUnique();
+
+            modelBuilder.Entity<UserAchievement>()
+                .HasOne(achievement => achievement.Owner)
+                .WithMany(user => user.Achievements)
+                .HasForeignKey(achievement => achievement.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserAchievement>()
+                .HasIndex(achievement => new
+                {
+                    achievement.OwnerId,
+                    achievement.AchievementType
+                })
+                .IsUnique();
         }
     }
 }
