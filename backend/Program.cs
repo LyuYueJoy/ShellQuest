@@ -38,6 +38,12 @@ builder.Services.AddScoped<
     IDashboardRepository,
     DashboardRepository
 >();
+
+builder.Services.AddScoped<
+    ICareTaskRepository,
+    CareTaskRepository
+>();
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
