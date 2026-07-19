@@ -100,6 +100,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+using (IServiceScope scope =
+    app.Services.CreateScope())
+{
+    WebAPIDBContext context =
+        scope.ServiceProvider
+            .GetRequiredService<WebAPIDBContext>();
+
+    await ShopDataSeeder.SeedAsync(context);
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
