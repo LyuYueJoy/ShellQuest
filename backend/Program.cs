@@ -44,6 +44,8 @@ builder.Services.AddScoped<
     CareTaskRepository
 >();
 
+
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

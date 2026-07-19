@@ -14,6 +14,15 @@ namespace backend.Data
         public DbSet<UserAchievement> UserAchievements =>
             Set<UserAchievement>();
 
+        public DbSet<ShopItem> ShopItems =>
+            Set<ShopItem>();
+
+        public DbSet<UserInventoryItem> UserInventoryItems =>
+            Set<UserInventoryItem>();
+
+        public DbSet<PurchaseTransaction> PurchaseTransactions =>
+            Set<PurchaseTransaction>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -63,6 +72,49 @@ namespace backend.Data
                     achievement.AchievementType
                 })
                 .IsUnique();
+
+            modelBuilder.Entity<ShopItem>()
+    .HasIndex(item => item.AssetKey)
+    .IsUnique();
+
+            modelBuilder.Entity<UserInventoryItem>()
+                .HasOne(inventoryItem => inventoryItem.Owner)
+                .WithMany(user => user.InventoryItems)
+                .HasForeignKey(inventoryItem => inventoryItem.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserInventoryItem>()
+                .HasOne(inventoryItem => inventoryItem.ShopItem)
+                .WithMany(shopItem => shopItem.InventoryItems)
+                .HasForeignKey(inventoryItem => inventoryItem.ShopItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserInventoryItem>()
+                .HasIndex(inventoryItem => new
+                {
+                    inventoryItem.OwnerId,
+                    inventoryItem.ShopItemId
+                })
+                .IsUnique();
+
+            modelBuilder.Entity<PurchaseTransaction>()
+                .HasOne(purchase => purchase.Owner)
+                .WithMany(user => user.Purchases)
+                .HasForeignKey(purchase => purchase.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PurchaseTransaction>()
+                .HasOne(purchase => purchase.ShopItem)
+                .WithMany(shopItem => shopItem.Purchases)
+                .HasForeignKey(purchase => purchase.ShopItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseTransaction>()
+                .HasIndex(purchase => new
+                {
+                    purchase.OwnerId,
+                    purchase.PurchasedAt
+                });
         }
     }
 }

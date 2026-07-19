@@ -43,5 +43,17 @@ namespace backend.Models
 
         public ICollection<UserAchievement> Achievements { get; set; }
             = new List<UserAchievement>();
+
+        public ICollection<UserInventoryItem> InventoryItems
+        {
+            get;
+            set;
+        } = new List<UserInventoryItem>();
+
+        public ICollection<PurchaseTransaction> Purchases
+        {
+            get;
+            set;
+        } = new List<PurchaseTransaction>();
     }
 }
