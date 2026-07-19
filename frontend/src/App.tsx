@@ -15,6 +15,7 @@ import AddTortoisePage from "./pages/AddTortoisePage/AddTortoisePage";
 import TortoiseDetailPage from "./pages/TortoiseDetailPage/TortoiseDetailPage";
 import EditTortoisePage from "./pages/EditTortoisePage/EditTortoisePage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
+import CareTasksPage from "./pages/CareTasksPage/CareTasksPage";
 
 function Page({ title }: { title: string }) {
   return (
@@ -63,7 +64,7 @@ export default function App() {
 
             <Route
               path="/tasks"
-              element={<Page title="Care Tasks" />}
+              element={<CareTasksPage />}
             />
 
             <Route
