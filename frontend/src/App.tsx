@@ -16,6 +16,7 @@ import TortoiseDetailPage from "./pages/TortoiseDetailPage/TortoiseDetailPage";
 import EditTortoisePage from "./pages/EditTortoisePage/EditTortoisePage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import CareTasksPage from "./pages/CareTasksPage/CareTasksPage";
+import ShopPage from "./pages/ShopPage/ShopPage";
 
 function Page({ title }: { title: string }) {
   return (
@@ -72,7 +73,7 @@ export default function App() {
               element={<Page title="Avatar Studio" />}
             />
 
-            <Route path="/shop" element={<Page title="Shop" />} />
+            <Route path="/shop" element={<ShopPage />} />
 
             <Route
               path="/chat"
