@@ -44,6 +44,10 @@ builder.Services.AddScoped<
     CareTaskRepository
 >();
 
+builder.Services.AddScoped<
+    IShopRepository,
+    ShopRepository
+>();
 
 
 builder.Services
