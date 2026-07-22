@@ -17,6 +17,8 @@ import EditTortoisePage from "./pages/EditTortoisePage/EditTortoisePage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import CareTasksPage from "./pages/CareTasksPage/CareTasksPage";
 import ShopPage from "./pages/ShopPage/ShopPage";
+import AvatarStudioPage from "./pages/AvatarStudioPage/AvatarStudioPage";
+
 
 function Page({ title }: { title: string }) {
   return (
@@ -70,7 +72,7 @@ export default function App() {
 
             <Route
               path="/avatar"
-              element={<Page title="Avatar Studio" />}
+              element={<AvatarStudioPage />}
             />
 
             <Route path="/shop" element={<ShopPage />} />
