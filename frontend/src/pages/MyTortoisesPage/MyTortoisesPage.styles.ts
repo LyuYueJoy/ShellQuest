@@ -143,6 +143,7 @@ export const PhotoFrame = styled(Box)(({ theme }) => ({
 export const TortoiseImage = styled("img")({
   position: "absolute",
   inset: "8%",
+  zIndex: 10,
   width: "84%",
   height: "84%",
   objectFit: "contain",
@@ -184,6 +185,7 @@ export const PhotoLabel = styled(Chip)(({ theme }) => ({
   position: "absolute",
   top: theme.spacing(1.75),
   left: theme.spacing(1.75),
+  zIndex: 100,
   color: theme.palette.primary.dark,
 }));
 
@@ -252,10 +254,22 @@ export const AvatarPreviewStage = styled(Box)({
   left: "50%",
   height: "100%",
   aspectRatio: "1 / 1",
+  overflow: "hidden",
   transform: "translate(-50%, -50%)",
   transition: "transform 240ms ease",
 
   [`${TortoiseCardRoot}:hover &`]: {
     transform: "translate(-50%, calc(-50% - 4px)) scale(1.03)",
   },
+});
+
+export const AvatarBackground = styled("img")({
+  position: "absolute",
+  inset: 0,
+  zIndex: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  pointerEvents: "none",
+  userSelect: "none",
 });

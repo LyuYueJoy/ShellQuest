@@ -48,6 +48,7 @@ import {
   WeightChip,
   DeleteActionButton,
   AvatarPreviewStage,
+  AvatarBackground,
 } from "./MyTortoisesPage.styles";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.replace(
@@ -137,12 +138,27 @@ function TortoiseCard({
     <PhotoFrame>
       {photoUrl ? (
         <AvatarPreviewStage>
+          {/* Background */}
+          {avatar?.equippedItems
+            .filter((item) => item.name === "Peaceful Garden")
+            .map((item) => (
+              <AvatarBackground
+                key={item.avatarEquippedItemId}
+                src={getAssetUrl(item.assetUrl)}
+                alt=""
+                aria-hidden="true"
+              />
+            ))}
+
+          {/* Tortoise */}
           <TortoiseImage
             src={photoUrl}
             alt={`${tortoise.name} the tortoise`}
           />
 
+          {/* Movable accessories */}
           {avatar?.equippedItems
+            .filter((item) => item.name !== "Peaceful Garden")
             .slice()
             .sort(
               (firstItem, secondItem) =>
@@ -158,7 +174,7 @@ function TortoiseCard({
                   left: `${item.x * 100}%`,
                   top: `${item.y * 100}%`,
                   width: `${item.scale * 40}%`,
-                  zIndex: item.zIndex,
+                  zIndex: 20 + item.zIndex,
                   transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
                 }}
               />
@@ -180,10 +196,7 @@ function TortoiseCard({
         </PhotoPlaceholder>
       )}
 
-      <PhotoLabel
-        label="ShellQuest Friend"
-        size="small"
-      />
+      <PhotoLabel label="ShellQuest Friend" size="small" />
     </PhotoFrame>
 
       <CardContent
