@@ -49,6 +49,11 @@ builder.Services.AddScoped<
     ShopRepository
 >();
 
+builder.Services.AddScoped<
+    IAvatarRepository,
+    AvatarRepository
+>();
+
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
