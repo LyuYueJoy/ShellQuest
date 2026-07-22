@@ -47,6 +47,7 @@ import {
   AvatarAsset,
   WeightChip,
   DeleteActionButton,
+  AvatarPreviewStage,
 } from "./MyTortoisesPage.styles";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.replace(
@@ -133,30 +134,15 @@ function TortoiseCard({
 
   return (
     <TortoiseCardRoot>
-      <PhotoFrame>
-        {photoUrl ? (
+    <PhotoFrame>
+      {photoUrl ? (
+        <AvatarPreviewStage>
           <TortoiseImage
             src={photoUrl}
             alt={`${tortoise.name} the tortoise`}
           />
-        ) : (
-          <PhotoPlaceholder>
-            <PlaceholderIcon>
-              <PetsRounded sx={{ fontSize: 46 }} />
-            </PlaceholderIcon>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontWeight: 700 }}
-            >
-              Add a photo
-            </Typography>
-          </PhotoPlaceholder>
-        )}
-
-        {photoUrl &&
-          avatar?.equippedItems
+          {avatar?.equippedItems
             .slice()
             .sort(
               (firstItem, secondItem) =>
@@ -177,12 +163,28 @@ function TortoiseCard({
                 }}
               />
             ))}
+        </AvatarPreviewStage>
+      ) : (
+        <PhotoPlaceholder>
+          <PlaceholderIcon>
+            <PetsRounded sx={{ fontSize: 46 }} />
+          </PlaceholderIcon>
 
-        <PhotoLabel
-          label="ShellQuest Friend"
-          size="small"
-        />
-      </PhotoFrame>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontWeight: 700 }}
+          >
+            Add a photo
+          </Typography>
+        </PhotoPlaceholder>
+      )}
+
+      <PhotoLabel
+        label="ShellQuest Friend"
+        size="small"
+      />
+    </PhotoFrame>
 
       <CardContent
         sx={{

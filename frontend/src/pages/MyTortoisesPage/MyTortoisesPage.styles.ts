@@ -141,16 +141,13 @@ export const PhotoFrame = styled(Box)(({ theme }) => ({
 }));
 
 export const TortoiseImage = styled("img")({
-  display: "block",
-  width: "100%",
-  height: "100%",
+  position: "absolute",
+  inset: "8%",
+  width: "84%",
+  height: "84%",
   objectFit: "contain",
-  padding: 12,
-  transition: "transform 240ms ease",
-
-  [`${TortoiseCardRoot}:hover &`]: {
-    transform: "translateY(-4px) scale(1.03)",
-  },
+  pointerEvents: "none",
+  userSelect: "none",
 });
 
 export const AvatarAsset = styled("img")({
@@ -248,3 +245,17 @@ export const DeleteActionButton = styled(IconButton)(
     },
   }),
 );
+
+export const AvatarPreviewStage = styled(Box)({
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  height: "100%",
+  aspectRatio: "1 / 1",
+  transform: "translate(-50%, -50%)",
+  transition: "transform 240ms ease",
+
+  [`${TortoiseCardRoot}:hover &`]: {
+    transform: "translate(-50%, calc(-50% - 4px)) scale(1.03)",
+  },
+});
