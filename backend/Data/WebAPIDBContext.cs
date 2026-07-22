@@ -22,6 +22,9 @@ namespace backend.Data
 
         public DbSet<PurchaseTransaction> PurchaseTransactions =>
             Set<PurchaseTransaction>();
+        public DbSet<TortoiseAvatar> TortoiseAvatars { get; set; }
+
+        public DbSet<AvatarEquippedItem> AvatarEquippedItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -115,6 +118,38 @@ namespace backend.Data
                     purchase.OwnerId,
                     purchase.PurchasedAt
                 });
+
+            modelBuilder.Entity<TortoiseAvatar>()
+    .HasIndex(avatar => avatar.TortoiseId)
+    .IsUnique();
+
+            modelBuilder.Entity<TortoiseAvatar>()
+                .HasOne(avatar => avatar.Tortoise)
+                .WithOne()
+                .HasForeignKey<TortoiseAvatar>(
+                    avatar => avatar.TortoiseId
+                )
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AvatarEquippedItem>()
+                .HasIndex(item => new
+                {
+                    item.TortoiseAvatarId,
+                    item.ShopItemId
+                })
+                .IsUnique();
+
+            modelBuilder.Entity<AvatarEquippedItem>()
+                .HasOne(item => item.TortoiseAvatar)
+                .WithMany(avatar => avatar.EquippedItems)
+                .HasForeignKey(item => item.TortoiseAvatarId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AvatarEquippedItem>()
+                .HasOne(item => item.ShopItem)
+                .WithMany()
+                .HasForeignKey(item => item.ShopItemId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
