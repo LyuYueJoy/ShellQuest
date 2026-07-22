@@ -21,8 +21,10 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 
 import {
   equipAvatarItem,
@@ -47,6 +49,7 @@ import {
   ControlsGrid,
   EmptyCanvas,
   EquippedAsset,
+  EquippedItem,
   HeroCard,
   HeroContent,
   InventoryAction,
@@ -56,9 +59,41 @@ import {
   LoadingArea,
   PageContainer,
   PanelCard,
+  ResizeHandle,
+  RotateHandle,
   StudioGrid,
   TortoisePhoto,
 } from "./AvatarStudioPage.styles";
+
+type InteractionMode = "drag" | "resize" | "rotate";
+
+type PointerInteraction = {
+  pointerId: number;
+  mode: InteractionMode;
+  itemId: number;
+  startClientX: number;
+  startClientY: number;
+  startItem: AvatarEquippedItem;
+  startDistance: number;
+  startAngle: number;
+};
+
+const clamp = (value: number, minimum: number, maximum: number) =>
+  Math.min(maximum, Math.max(minimum, value));
+
+const pointerAngle = (
+  clientX: number,
+  clientY: number,
+  centerX: number,
+  centerY: number,
+) => Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+
+const pointerDistance = (
+  clientX: number,
+  clientY: number,
+  centerX: number,
+  centerY: number,
+) => Math.hypot(clientX - centerX, clientY - centerY);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -107,6 +142,8 @@ function toUpdateRequest(
 }
 
 export default function AvatarStudioPage() {
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const interactionRef = useRef<PointerInteraction | null>(null);
   const [tortoises, setTortoises] = useState<
     TortoiseResponse[]
   >([]);
@@ -317,6 +354,141 @@ export default function AvatarStudioPage() {
     });
   }
 
+  function updateItemLocally(
+    itemId: number,
+    changes: Partial<UpdateAvatarItemRequest>,
+  ) {
+    setAvatar((currentAvatar) => {
+      if (!currentAvatar) {
+        return currentAvatar;
+      }
+
+      return {
+        ...currentAvatar,
+        equippedItems: currentAvatar.equippedItems.map((item) =>
+          item.avatarEquippedItemId === itemId
+            ? { ...item, ...changes }
+            : item,
+        ),
+      };
+    });
+  }
+
+  function beginInteraction(
+    event: ReactPointerEvent<HTMLElement>,
+    item: AvatarEquippedItem,
+    mode: InteractionMode,
+  ) {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setSelectedItemId(item.avatarEquippedItemId);
+
+    const rect = canvas.getBoundingClientRect();
+    const centerX = rect.left + item.x * rect.width;
+    const centerY = rect.top + item.y * rect.height;
+
+    interactionRef.current = {
+      pointerId: event.pointerId,
+      mode,
+      itemId: item.avatarEquippedItemId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startItem: { ...item },
+      startDistance: Math.max(
+        pointerDistance(event.clientX, event.clientY, centerX, centerY),
+        1,
+      ),
+      startAngle: pointerAngle(
+        event.clientX,
+        event.clientY,
+        centerX,
+        centerY,
+      ),
+    };
+  }
+
+  function continueInteraction(event: ReactPointerEvent<HTMLElement>) {
+    const canvas = canvasRef.current;
+    const interaction = interactionRef.current;
+
+    if (!canvas || !interaction || interaction.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const { startItem } = interaction;
+
+    if (interaction.mode === "drag") {
+      updateItemLocally(interaction.itemId, {
+        x: clamp(
+          startItem.x +
+            (event.clientX - interaction.startClientX) / rect.width,
+          0,
+          1,
+        ),
+        y: clamp(
+          startItem.y +
+            (event.clientY - interaction.startClientY) / rect.height,
+          0,
+          1,
+        ),
+      });
+      return;
+    }
+
+    const centerX = rect.left + startItem.x * rect.width;
+    const centerY = rect.top + startItem.y * rect.height;
+
+    if (interaction.mode === "resize") {
+      const distance = pointerDistance(
+        event.clientX,
+        event.clientY,
+        centerX,
+        centerY,
+      );
+
+      updateItemLocally(interaction.itemId, {
+        scale: clamp(
+          startItem.scale * (distance / interaction.startDistance),
+          0.1,
+          3,
+        ),
+      });
+      return;
+    }
+
+    const currentAngle = pointerAngle(
+      event.clientX,
+      event.clientY,
+      centerX,
+      centerY,
+    );
+    let rotation =
+      startItem.rotation + currentAngle - interaction.startAngle;
+    rotation = ((rotation + 180) % 360 + 360) % 360 - 180;
+    updateItemLocally(interaction.itemId, { rotation });
+  }
+
+  function endInteraction(event: ReactPointerEvent<HTMLElement>) {
+    if (interactionRef.current?.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    interactionRef.current = null;
+  }
+
   async function handleSaveSelectedItem() {
     if (
       !selectedItem ||
@@ -465,16 +637,13 @@ export default function AvatarStudioPage() {
           <Box>
             <PanelCard>
               <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={2}
-                    sx={{
-                        justifyContent: "space-between",
-                        alignItems: {
-                        xs: "stretch",
-                        sm: "center",
-                        },
-                    }}
-                    >
+                spacing={2}
+                sx={{
+                  flexDirection: { xs: "column", sm: "row" },
+                  justifyContent: "space-between",
+                  alignItems: { xs: "stretch", sm: "center" },
+                }}
+              >
                 <Box>
                   <Typography variant="h5" sx={{ fontWeight: 900 }}>
                     Avatar Canvas
@@ -524,7 +693,7 @@ export default function AvatarStudioPage() {
                   <Typography>Loading avatar...</Typography>
                 </LoadingArea>
               ) : (
-                <AvatarCanvas>
+                <AvatarCanvas ref={canvasRef}>
                   {avatar?.tortoisePhotoUrl ? (
                     <TortoisePhoto
                       src={
@@ -557,32 +726,69 @@ export default function AvatarStudioPage() {
                         firstItem.zIndex -
                         secondItem.zIndex,
                     )
-                    .map((item) => (
-                      <EquippedAsset
-                        key={item.avatarEquippedItemId}
-                        src={getAssetUrl(item.assetUrl)}
-                        alt={item.name}
-                        selected={
-                          selectedItemId ===
-                          item.avatarEquippedItemId
-                        }
-                        onClick={() =>
-                          setSelectedItemId(
-                            item.avatarEquippedItemId,
-                          )
-                        }
-                        style={{
-                          left: `${item.x * 100}%`,
-                          top: `${item.y * 100}%`,
-                          width: `${item.scale * 40}%`,
-                          zIndex: item.zIndex,
-                          transform: `
-                            translate(-50%, -50%)
-                            rotate(${item.rotation}deg)
-                          `,
-                        }}
-                      />
-                    ))}
+                    .map((item) => {
+                      const selected =
+                        selectedItemId === item.avatarEquippedItemId;
+
+                      return (
+                        <EquippedItem
+                          key={item.avatarEquippedItemId}
+                          selected={selected}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Move ${item.name}`}
+                          onClick={() =>
+                            setSelectedItemId(item.avatarEquippedItemId)
+                          }
+                          onPointerDown={(event) =>
+                            beginInteraction(event, item, "drag")
+                          }
+                          onPointerMove={continueInteraction}
+                          onPointerUp={endInteraction}
+                          onPointerCancel={endInteraction}
+                          style={{
+                            left: `${item.x * 100}%`,
+                            top: `${item.y * 100}%`,
+                            width: `${item.scale * 40}%`,
+                            zIndex: item.zIndex,
+                            transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
+                          }}
+                        >
+                          <EquippedAsset
+                            src={getAssetUrl(item.assetUrl)}
+                            alt={item.name}
+                            draggable={false}
+                          />
+
+                          {selected && (
+                            <>
+                              <RotateHandle
+                                type="button"
+                                aria-label={`Rotate ${item.name}`}
+                                title="Drag to rotate"
+                                onPointerDown={(event) =>
+                                  beginInteraction(event, item, "rotate")
+                                }
+                                onPointerMove={continueInteraction}
+                                onPointerUp={endInteraction}
+                                onPointerCancel={endInteraction}
+                              />
+                              <ResizeHandle
+                                type="button"
+                                aria-label={`Resize ${item.name}`}
+                                title="Drag to resize"
+                                onPointerDown={(event) =>
+                                  beginInteraction(event, item, "resize")
+                                }
+                                onPointerMove={continueInteraction}
+                                onPointerUp={endInteraction}
+                                onPointerCancel={endInteraction}
+                              />
+                            </>
+                          )}
+                        </EquippedItem>
+                      );
+                    })}
                 </AvatarCanvas>
               )}
             </PanelCard>
@@ -697,9 +903,11 @@ export default function AvatarStudioPage() {
                 </ControlsGrid>
 
                 <Stack
-                  direction={{ xs: "column", sm: "row" }}
                   spacing={2}
-                  sx={{ mt: 3 }}
+                  sx={{
+                    mt: 3,
+                    flexDirection: { xs: "column", sm: "row" },
+                  }}
                 >
                   <Button
                     variant="contained"
