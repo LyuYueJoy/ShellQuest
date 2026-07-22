@@ -19,6 +19,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getTortoises, deleteTortoise } from "../../services/tortoiseService";
+import { getAvatar } from "../../services/avatarService";
+import type { TortoiseAvatar } from "../../types/avatar";
 import type { TortoiseResponse } from "../../types/tortoise";
 import DeleteTortoiseDialog from "../../components/DeleteTortoiseDialog/DeleteTortoiseDialog";
 import {
@@ -42,6 +44,7 @@ import {
   TopDecoration,
   TortoiseCardRoot,
   TortoiseImage,
+  AvatarAsset,
   WeightChip,
   DeleteActionButton,
 } from "./MyTortoisesPage.styles";
@@ -68,6 +71,19 @@ function getPhotoUrl(photoUrl: string | null): string | null {
     : `/${photoUrl}`;
 
   return `${apiBaseUrl}${path}`;
+}
+
+function getAssetUrl(assetUrl: string): string {
+  if (
+    assetUrl.startsWith("http://") ||
+    assetUrl.startsWith("https://")
+  ) {
+    return assetUrl;
+  }
+
+  return assetUrl.startsWith("/")
+    ? assetUrl
+    : `/${assetUrl}`;
 }
 
 function formatAge(ageMonths: number | null): string {
@@ -103,11 +119,13 @@ function formatWeight(weightGrams: number | null): string {
 
 interface TortoiseCardProps {
   tortoise: TortoiseResponse;
+  avatar: TortoiseAvatar | null;
   onDelete: (tortoise: TortoiseResponse) => void;
 }
 
 function TortoiseCard({
   tortoise,
+  avatar,
   onDelete,
 }: TortoiseCardProps) {
   const navigate = useNavigate();
@@ -136,6 +154,29 @@ function TortoiseCard({
             </Typography>
           </PhotoPlaceholder>
         )}
+
+        {photoUrl &&
+          avatar?.equippedItems
+            .slice()
+            .sort(
+              (firstItem, secondItem) =>
+                firstItem.zIndex - secondItem.zIndex,
+            )
+            .map((item) => (
+              <AvatarAsset
+                key={item.avatarEquippedItemId}
+                src={getAssetUrl(item.assetUrl)}
+                alt=""
+                aria-hidden="true"
+                style={{
+                  left: `${item.x * 100}%`,
+                  top: `${item.y * 100}%`,
+                  width: `${item.scale * 40}%`,
+                  zIndex: item.zIndex,
+                  transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
+                }}
+              />
+            ))}
 
         <PhotoLabel
           label="ShellQuest Friend"
@@ -257,6 +298,8 @@ export default function MyTortoisesPage() {
   const [tortoises, setTortoises] = useState<
     TortoiseResponse[]
   >([]);
+  const [avatarsByTortoiseId, setAvatarsByTortoiseId] =
+    useState<Record<number, TortoiseAvatar | null>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<
     string | null
@@ -269,6 +312,23 @@ export default function MyTortoisesPage() {
     try {
       const result = await getTortoises();
       setTortoises(result);
+
+      void Promise.all(
+        result.map(async (tortoise) => {
+          try {
+            const avatar = await getAvatar(
+              tortoise.tortoiseId,
+            );
+            return [tortoise.tortoiseId, avatar] as const;
+          } catch {
+            return [tortoise.tortoiseId, null] as const;
+          }
+        }),
+      ).then((avatarEntries) => {
+        setAvatarsByTortoiseId(
+          Object.fromEntries(avatarEntries),
+        );
+      });
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -328,6 +388,12 @@ function closeDeleteDialog() {
             selectedTortoise.tortoiseId,
         ),
         );
+
+        setAvatarsByTortoiseId((currentAvatars) => {
+          const nextAvatars = { ...currentAvatars };
+          delete nextAvatars[selectedTortoise.tortoiseId];
+          return nextAvatars;
+        });
 
         setSuccessMessage(
         `${selectedTortoise.name} was deleted.`,
@@ -473,6 +539,11 @@ function closeDeleteDialog() {
                   <TortoiseCard
                     key={tortoise.tortoiseId}
                     tortoise={tortoise}
+                    avatar={
+                      avatarsByTortoiseId[
+                        tortoise.tortoiseId
+                      ] ?? null
+                    }
                     onDelete={openDeleteDialog}
                   />
                 ))}

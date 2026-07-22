@@ -153,6 +153,16 @@ export const TortoiseImage = styled("img")({
   },
 });
 
+export const AvatarAsset = styled("img")({
+  position: "absolute",
+  display: "block",
+  maxWidth: "none",
+  height: "auto",
+  pointerEvents: "none",
+  userSelect: "none",
+  transformOrigin: "center",
+});
+
 export const PhotoPlaceholder = styled(Box)(({ theme }) => ({
   display: "flex",
   height: "100%",
