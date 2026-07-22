@@ -63,6 +63,7 @@ import {
   RotateHandle,
   StudioGrid,
   TortoisePhoto,
+  EquippedBackground,
 } from "./AvatarStudioPage.styles";
 
 type InteractionMode = "drag" | "resize" | "rotate";
@@ -694,102 +695,116 @@ export default function AvatarStudioPage() {
                 </LoadingArea>
               ) : (
                 <AvatarCanvas ref={canvasRef}>
-                  {avatar?.tortoisePhotoUrl ? (
-                    <TortoisePhoto
-                      src={
-                        getPhotoUrl(
-                          avatar.tortoisePhotoUrl,
-                        ) ?? undefined
-                      }
-                      alt={avatar.tortoiseName}
-                    />
-                  ) : (
-                    <EmptyCanvas>
-                      <Box>
-                        <Pets
-                          color="primary"
-                          sx={{ fontSize: 72 }}
-                        />
-
-                        <Typography sx={{ fontWeight: 800 }}>
-                          Upload a tortoise photo to complete
-                          the avatar.
-                        </Typography>
-                      </Box>
-                    </EmptyCanvas>
-                  )}
-
-                  {avatar?.equippedItems
-                    .slice()
-                    .sort(
-                      (firstItem, secondItem) =>
-                        firstItem.zIndex -
-                        secondItem.zIndex,
-                    )
-                    .map((item) => {
-                      const selected =
-                        selectedItemId === item.avatarEquippedItemId;
-
-                      return (
-                        <EquippedItem
-                          key={item.avatarEquippedItemId}
-                          selected={selected}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Move ${item.name}`}
-                          onClick={() =>
-                            setSelectedItemId(item.avatarEquippedItemId)
-                          }
-                          onPointerDown={(event) =>
-                            beginInteraction(event, item, "drag")
-                          }
-                          onPointerMove={continueInteraction}
-                          onPointerUp={endInteraction}
-                          onPointerCancel={endInteraction}
-                          style={{
-                            left: `${item.x * 100}%`,
-                            top: `${item.y * 100}%`,
-                            width: `${item.scale * 40}%`,
-                            zIndex: item.zIndex,
-                            transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
-                          }}
-                        >
-                          <EquippedAsset
+                    {/* 1. Background */}
+                    {avatar?.equippedItems
+                        .filter((item) => item.name === "Peaceful Garden")
+                        .map((item) => (
+                        <EquippedBackground
+                            key={item.avatarEquippedItemId}
                             src={getAssetUrl(item.assetUrl)}
                             alt={item.name}
                             draggable={false}
-                          />
+                        />
+                        ))}
 
-                          {selected && (
-                            <>
-                              <RotateHandle
-                                type="button"
-                                aria-label={`Rotate ${item.name}`}
-                                title="Drag to rotate"
-                                onPointerDown={(event) =>
-                                  beginInteraction(event, item, "rotate")
-                                }
-                                onPointerMove={continueInteraction}
-                                onPointerUp={endInteraction}
-                                onPointerCancel={endInteraction}
-                              />
-                              <ResizeHandle
-                                type="button"
-                                aria-label={`Resize ${item.name}`}
-                                title="Drag to resize"
-                                onPointerDown={(event) =>
-                                  beginInteraction(event, item, "resize")
-                                }
-                                onPointerMove={continueInteraction}
-                                onPointerUp={endInteraction}
-                                onPointerCancel={endInteraction}
-                              />
-                            </>
-                          )}
-                        </EquippedItem>
-                      );
-                    })}
-                </AvatarCanvas>
+                    {/* 2. Tortoise photo */}
+                    {avatar?.tortoisePhotoUrl ? (
+                        <TortoisePhoto
+                        src={
+                            getPhotoUrl(avatar.tortoisePhotoUrl) ??
+                            undefined
+                        }
+                        alt={avatar.tortoiseName}
+                        draggable={false}
+                        />
+                    ) : (
+                        <EmptyCanvas>
+                        <Box>
+                            <Pets
+                            color="primary"
+                            sx={{ fontSize: 72 }}
+                            />
+
+                            <Typography sx={{ fontWeight: 800 }}>
+                            Upload a tortoise photo to complete the avatar.
+                            </Typography>
+                        </Box>
+                        </EmptyCanvas>
+                    )}
+
+                    {/* 3. Movable accessories */}
+                    {avatar?.equippedItems
+                        .filter((item) => item.name !== "Peaceful Garden")
+                        .slice()
+                        .sort(
+                        (firstItem, secondItem) =>
+                            firstItem.zIndex - secondItem.zIndex,
+                        )
+                        .map((item) => {
+                        const selected =
+                            selectedItemId === item.avatarEquippedItemId;
+
+                        return (
+                            <EquippedItem
+                            key={item.avatarEquippedItemId}
+                            selected={selected}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Move ${item.name}`}
+                            onClick={() =>
+                                setSelectedItemId(item.avatarEquippedItemId)
+                            }
+                            onPointerDown={(event) =>
+                                beginInteraction(event, item, "drag")
+                            }
+                            onPointerMove={continueInteraction}
+                            onPointerUp={endInteraction}
+                            onPointerCancel={endInteraction}
+                            style={{
+                                left: `${item.x * 100}%`,
+                                top: `${item.y * 100}%`,
+                                width: `${item.scale * 40}%`,
+                                zIndex: 20 + item.zIndex,
+                                transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
+                            }}
+                            >
+                            <EquippedAsset
+                                src={getAssetUrl(item.assetUrl)}
+                                alt={item.name}
+                                draggable={false}
+                            />
+
+                            {selected && (
+                                <>
+                                <RotateHandle
+                                    type="button"
+                                    aria-label={`Rotate ${item.name}`}
+                                    title="Drag to rotate"
+                                    onPointerDown={(event) =>
+                                    beginInteraction(event, item, "rotate")
+                                    }
+                                    onPointerMove={continueInteraction}
+                                    onPointerUp={endInteraction}
+                                    onPointerCancel={endInteraction}
+                                />
+
+                                <ResizeHandle
+                                    type="button"
+                                    aria-label={`Resize ${item.name}`}
+                                    title="Drag to resize"
+                                    onPointerDown={(event) =>
+                                    beginInteraction(event, item, "resize")
+                                    }
+                                    onPointerMove={continueInteraction}
+                                    onPointerUp={endInteraction}
+                                    onPointerCancel={endInteraction}
+                                />
+                                </>
+                            )}
+                            </EquippedItem>
+                        );
+                        })}
+                    </AvatarCanvas>
               )}
             </PanelCard>
 

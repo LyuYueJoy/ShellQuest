@@ -56,9 +56,21 @@ export const AvatarCanvas = styled("div")(({ theme }) => ({
 export const TortoisePhoto = styled("img")({
   position: "absolute",
   inset: "8%",
+  zIndex: 10,
   width: "84%",
   height: "84%",
   objectFit: "contain",
+  userSelect: "none",
+  pointerEvents: "none",
+});
+
+export const EquippedBackground = styled("img")({
+  position: "absolute",
+  inset: 0,
+  zIndex: 1,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
   userSelect: "none",
   pointerEvents: "none",
 });
