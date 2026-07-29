@@ -26,6 +26,9 @@ namespace backend.Data
 
         public DbSet<AvatarEquippedItem> AvatarEquippedItems { get; set; }
 
+        public DbSet<ForumPost> ForumPosts { get; set; }
+        public DbSet<ForumReply> ForumReplies { get; set; }
+        public DbSet<ForumPostLike> ForumPostLikes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -150,6 +153,49 @@ namespace backend.Data
                 .WithMany()
                 .HasForeignKey(item => item.ShopItemId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ForumPost>(entity =>
+            {
+                entity.HasKey(post => post.ForumPostId);
+
+                entity.HasOne(post => post.Author)
+                    .WithMany(user => user.ForumPosts)
+                    .HasForeignKey(post => post.AuthorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ForumReply>(entity =>
+            {
+                entity.HasKey(reply => reply.ForumReplyId);
+
+                entity.HasOne(reply => reply.ForumPost)
+                    .WithMany(post => post.Replies)
+                    .HasForeignKey(reply => reply.ForumPostId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(reply => reply.Author)
+                    .WithMany(user => user.ForumReplies)
+                    .HasForeignKey(reply => reply.AuthorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ForumPostLike>(entity =>
+            {
+                entity.HasKey(like => like.ForumPostLikeId);
+
+                entity.HasIndex(like => new { like.ForumPostId, like.UserId })
+                    .IsUnique();
+
+                entity.HasOne(like => like.ForumPost)
+                    .WithMany(post => post.Likes)
+                    .HasForeignKey(like => like.ForumPostId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(like => like.User)
+                    .WithMany(user => user.ForumPostLikes)
+                    .HasForeignKey(like => like.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

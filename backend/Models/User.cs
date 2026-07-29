@@ -55,5 +55,14 @@ namespace backend.Models
             get;
             set;
         } = new List<PurchaseTransaction>();
+
+        public ICollection<ForumPost> ForumPosts { get; set; }
+    = new List<ForumPost>();
+
+        public ICollection<ForumReply> ForumReplies { get; set; }
+            = new List<ForumReply>();
+
+        public ICollection<ForumPostLike> ForumPostLikes { get; set; }
+            = new List<ForumPostLike>();
     }
 }
