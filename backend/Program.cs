@@ -32,6 +32,8 @@ builder.Services.AddScoped<
     ITortoiseRepository,
     TortoiseRepository
 >();
+
+builder.Services.AddScoped<IForumRepository, ForumRepository>();
 builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddScoped<
