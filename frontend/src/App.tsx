@@ -18,7 +18,7 @@ import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import CareTasksPage from "./pages/CareTasksPage/CareTasksPage";
 import ShopPage from "./pages/ShopPage/ShopPage";
 import AvatarStudioPage from "./pages/AvatarStudioPage/AvatarStudioPage";
-
+import ForumPage from "./pages/ForumPage/ForumPage";
 
 function Page({ title }: { title: string }) {
   return (
@@ -39,7 +39,7 @@ export default function App() {
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forum" element={<Page title="Forum" />} />
+          <Route path="/forum" element={<ForumPage />} />
 
           {/* Login-required routes */}
           <Route element={<ProtectedRoute />}>
