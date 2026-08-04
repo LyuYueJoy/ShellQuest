@@ -56,6 +56,8 @@ builder.Services.AddScoped<
     AvatarRepository
 >();
 
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
