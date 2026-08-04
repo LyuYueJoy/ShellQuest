@@ -30,25 +30,35 @@ export const NavbarContainer = styled(AppBar)(({ theme }) => ({
   maxWidth: 1500,
   margin: "16px auto 0",
   color: theme.palette.text.primary,
-  backgroundColor: "#F3EEDC",
+  backgroundColor:
+    theme.palette.mode === "dark"
+      ? theme.palette.background.paper
+      : "#F3EEDC",
   backgroundImage: "none",
   borderRadius: 28,
-  border: "1px solid rgba(255, 255, 255, 0.5)",
-  boxShadow: clayShadow,
+  border: `1px solid ${
+    theme.palette.mode === "dark"
+      ? "rgba(210, 225, 205, 0.10)"
+      : "rgba(255, 255, 255, 0.5)"
+  }`,
+  boxShadow:
+    theme.palette.mode === "dark"
+      ? "10px 12px 24px rgba(0, 0, 0, 0.38), inset 2px 2px 4px rgba(255, 255, 255, 0.04)"
+      : clayShadow,
 }));
 
 export const NavbarToolbar = styled(Toolbar)({
   minHeight: 72,
 });
 
-export const BrandLink = styled(Link)({
+export const BrandLink = styled(Link)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: 10,
-  color: "#354A38",
+  color: theme.palette.text.primary,
   textDecoration: "none",
   marginRight: 32,
-});
+}));
 
 export const BrandText = styled(Typography)({
   fontWeight: 900,
@@ -72,14 +82,18 @@ interface NavigationLinkProps {
 
 export const NavigationLink = styled(Link, {
   shouldForwardProp: (property) => property !== "active",
-})<NavigationLinkProps>(({ active }) => ({
+})<NavigationLinkProps>(({ active, theme }) => ({
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
   minHeight: 42,
   padding: "8px 15px",
-  color: active ? "#FFFFFF" : "#4F5F4E",
-  backgroundColor: active ? "#58745A" : "transparent",
+  color: active
+    ? theme.palette.primary.contrastText
+    : theme.palette.text.secondary,
+  backgroundColor: active
+    ? theme.palette.primary.main
+    : "transparent",
   borderRadius: 999,
   fontSize: "0.875rem",
   fontWeight: 800,
@@ -96,10 +110,12 @@ export const NavigationLink = styled(Link, {
     "transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease",
 
   "&:hover": {
-    color: active ? "#FFFFFF" : "#354A38",
+    color: active
+      ? theme.palette.primary.contrastText
+      : theme.palette.text.primary,
     backgroundColor: active
-      ? "#617E62"
-      : "rgba(169, 194, 155, 0.32)",
+      ? theme.palette.primary.dark
+      : alpha(theme.palette.primary.main, 0.22),
     transform: "translateY(-2px)",
   },
 
@@ -128,37 +144,39 @@ export const UserAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 export const MobileMenuButton = styled(IconButton)(({ theme }) => ({
-  marginLeft: "auto",
-  color: "#354A38",
-  backgroundColor: "#A9C29B",
+  color: theme.palette.text.primary,
+  backgroundColor: alpha(theme.palette.primary.main, 0.28),
 
   [theme.breakpoints.up("md")]: {
     display: "none",
   },
 }));
 
-export const DrawerContent = styled(Box)({
+export const DrawerContent = styled(Box)(({ theme }) => ({
   width: 280,
   minHeight: "100%",
   paddingTop: 20,
-  backgroundColor: "#E8E2CE",
-});
+  backgroundColor:
+    theme.palette.mode === "dark"
+      ? theme.palette.background.default
+      : "#E8E2CE",
+}));
 
-export const DrawerTitle = styled(Typography)({
+export const DrawerTitle = styled(Typography)(({ theme }) => ({
   padding: "0 20px 16px",
-  color: "#354A38",
+  color: theme.palette.text.primary,
   fontWeight: 900,
-});
+}));
 
 export const DrawerNavigationItem = styled(ListItemButton)(
   ({ theme }) => ({
     margin: "4px 10px",
     borderRadius: 18,
-    color: "#4F5F4E",
+    color: theme.palette.text.secondary,
 
     "&.Mui-selected": {
-      color: "#FFFFFF",
-      backgroundColor: "#58745A",
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
       boxShadow: `
         5px 6px 12px rgba(53, 74, 56, 0.2),
         inset 2px 2px 4px rgba(255, 255, 255, 0.25),
@@ -167,7 +185,7 @@ export const DrawerNavigationItem = styled(ListItemButton)(
     },
 
     "&.Mui-selected:hover": {
-      backgroundColor: "#617E62",
+      backgroundColor: theme.palette.primary.dark,
     },
 
     "&:hover": {
@@ -282,6 +300,51 @@ export const DrawerAuthenticationActions = styled(Box)(
 
     "& a, & button": {
       width: "100%",
+    },
+  }),
+);
+
+interface ColorModeButtonProps {
+  mobile?: boolean;
+}
+
+export const ColorModeButton = styled(IconButton, {
+  shouldForwardProp: (property) => property !== "mobile",
+})<ColorModeButtonProps>(({ theme, mobile }) => ({
+  display: mobile ? "inline-flex" : "none",
+  color: theme.palette.mode === "dark" ? "#F0CE70" : "#354A38",
+  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.25)}`,
+  transition: "transform 180ms ease, background-color 180ms ease",
+
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.primary.main, 0.34),
+    transform: "translateY(-2px)",
+  },
+
+  "&:focus-visible": {
+    outline: `3px solid ${theme.palette.primary.light}`,
+    outlineOffset: 2,
+  },
+
+  [theme.breakpoints.up("md")]: {
+    display: mobile ? "none" : "inline-flex",
+  },
+}));
+
+export const DrawerColorModeButton = styled(Button)(
+  ({ theme }) => ({
+    width: "calc(100% - 32px)",
+    minHeight: 44,
+    margin: theme.spacing(2),
+    marginBottom: 0,
+    color: theme.palette.text.primary,
+    backgroundColor: alpha(theme.palette.primary.main, 0.2),
+    borderRadius: 999,
+    fontWeight: 800,
+
+    "&:hover": {
+      backgroundColor: alpha(theme.palette.primary.main, 0.34),
     },
   }),
 );

@@ -1,4 +1,3 @@
-import { Box, Typography } from "@mui/material";
 import {
   BrowserRouter,
   Navigate,
@@ -19,16 +18,9 @@ import CareTasksPage from "./pages/CareTasksPage/CareTasksPage";
 import ShopPage from "./pages/ShopPage/ShopPage";
 import AvatarStudioPage from "./pages/AvatarStudioPage/AvatarStudioPage";
 import ForumPage from "./pages/ForumPage/ForumPage";
+import ChatPage from "./pages/ChatPage";
 
-function Page({ title }: { title: string }) {
-  return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Typography variant="h4" sx={{ fontWeight: 800 }}>
-        {title}
-      </Typography>
-    </Box>
-  );
-}
+
 
 export default function App() {
   return (
@@ -79,7 +71,7 @@ export default function App() {
 
             <Route
               path="/chat"
-              element={<Page title="Private Chat" />}
+              element={<ChatPage/>}
             />
 
             <Route

@@ -1,11 +1,13 @@
 using backend.Data;
+using backend.Hubs;
+using backend.OpenApi;
 using backend.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
-using backend.OpenApi;
+//using backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +58,11 @@ builder.Services.AddScoped<
     AvatarRepository
 >();
 
+builder.Services.AddSignalR();
+
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+
+
 
 
 builder.Services
@@ -87,6 +93,26 @@ builder.Services
                         )
                     )
             };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken =
+                    context.Request.Query["access_token"];
+
+                var path = context.HttpContext.Request.Path;
+
+                if (
+                    !string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs/chat")
+                )
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -103,7 +129,8 @@ builder.Services.AddCors(options =>
                 "https://localhost:5173"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -127,15 +154,16 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseCors(FrontendCorsPolicy);
 
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Container, Drawer, List, ListItemText } from "@mui/material";
+import {
+  Container,
+  Drawer,
+  List,
+  ListItemText,
+  Tooltip,
+} from "@mui/material";
 import {
   Link,
   useLocation,
@@ -7,6 +13,10 @@ import {
 } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import PetsIcon from "@mui/icons-material/Pets";
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
+import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
+
+import { useColorMode } from "../../ColorModeProvider";
 
 import {
   BrandLink,
@@ -24,6 +34,8 @@ import {
   LoginActionLink,
   LogoutActionButton,
   RegisterActionLink,
+  ColorModeButton,
+  DrawerColorModeButton,
 } from "./Navbar.styles";
 
 interface NavigationItem {
@@ -45,7 +57,9 @@ export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { mode, toggleColorMode } = useColorMode();
   const isLoggedIn = sessionStorage.getItem("shellQuestToken") !== null;
+  const nextModeLabel = mode === "light" ? "dark" : "light";
   
   
   const isActive = (path: string) => {
@@ -91,6 +105,20 @@ export default function Navbar() {
             </DesktopNavigation>
 
             <AuthenticationActions>
+              <Tooltip title={`Switch to ${nextModeLabel} mode`} arrow>
+                <ColorModeButton
+                  type="button"
+                  aria-label={`Switch to ${nextModeLabel} mode`}
+                  onClick={toggleColorMode}
+                >
+                  {mode === "light" ? (
+                    <DarkModeRoundedIcon />
+                  ) : (
+                    <LightModeRoundedIcon />
+                  )}
+                </ColorModeButton>
+              </Tooltip>
+
               {isLoggedIn ? (
                 <LogoutActionButton
                   type="button"
@@ -112,6 +140,21 @@ export default function Navbar() {
                 </>
               )}
             </AuthenticationActions>
+
+            <Tooltip title={`Switch to ${nextModeLabel} mode`} arrow>
+              <ColorModeButton
+                type="button"
+                mobile
+                aria-label={`Switch to ${nextModeLabel} mode`}
+                onClick={toggleColorMode}
+              >
+                {mode === "light" ? (
+                  <DarkModeRoundedIcon />
+                ) : (
+                  <LightModeRoundedIcon />
+                )}
+              </ColorModeButton>
+            </Tooltip>
 
             <MobileMenuButton
               aria-label="Open navigation menu"
@@ -158,7 +201,22 @@ export default function Navbar() {
               </DrawerNavigationItem>
             </Link>
           ))}
-        </List>
+          </List>
+
+          <DrawerColorModeButton
+            type="button"
+            onClick={toggleColorMode}
+            startIcon={
+              mode === "light" ? (
+                <DarkModeRoundedIcon />
+              ) : (
+                <LightModeRoundedIcon />
+              )
+            }
+          >
+            Switch to {nextModeLabel} mode
+          </DrawerColorModeButton>
+
         <DrawerAuthenticationActions>
           {isLoggedIn ? (
             <LogoutActionButton
