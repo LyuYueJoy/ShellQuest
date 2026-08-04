@@ -22,8 +22,10 @@ builder.Services.AddOpenApi(options =>
 });
 
 builder.Services.AddDbContext<WebAPIDBContext>(options =>
-    options.UseSqlite(
-        builder.Configuration["WebAPIConnection"]
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString(
+            "WebAPIConnection"
+        )
     )
 );
 
