@@ -64,5 +64,11 @@ namespace backend.Models
 
         public ICollection<ForumPostLike> ForumPostLikes { get; set; }
             = new List<ForumPostLike>();
+
+        public ICollection<ChatMessage> SentMessages { get; set; }
+    = new List<ChatMessage>();
+
+        public ICollection<ChatMessage> ReceivedMessages { get; set; }
+            = new List<ChatMessage>();
     }
 }

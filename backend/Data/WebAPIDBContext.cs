@@ -29,6 +29,8 @@ namespace backend.Data
         public DbSet<ForumPost> ForumPosts { get; set; }
         public DbSet<ForumReply> ForumReplies { get; set; }
         public DbSet<ForumPostLike> ForumPostLikes { get; set; }
+        public DbSet<ChatMessage> ChatMessages =>
+    Set<ChatMessage>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -195,7 +197,29 @@ namespace backend.Data
                     .WithMany(user => user.ForumPostLikes)
                     .HasForeignKey(like => like.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+
             });
+            modelBuilder.Entity<ChatMessage>()
+            .HasOne(message => message.Sender)
+            .WithMany(user => user.SentMessages)
+            .HasForeignKey(message => message.SenderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(message => message.Receiver)
+                .WithMany(user => user.ReceivedMessages)
+                .HasForeignKey(message => message.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasIndex(message => new
+                {
+                    message.SenderId,
+                    message.ReceiverId,
+                    message.SentAt
+                });
+
         }
     }
 }
