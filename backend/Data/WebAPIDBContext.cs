@@ -45,11 +45,15 @@ namespace backend.Data
                 .HasForeignKey(tortoise => tortoise.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Tortoise>()
+                .Property(tortoise => tortoise.WeightGrams)
+                .HasPrecision(18, 2);
+
             modelBuilder.Entity<DailyCareTask>()
-    .HasOne(task => task.Owner)
-    .WithMany(user => user.DailyCareTasks)
-    .HasForeignKey(task => task.OwnerId)
-    .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(task => task.Owner)
+                .WithMany(user => user.DailyCareTasks)
+                .HasForeignKey(task => task.OwnerId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<DailyCareTask>()
                 .HasOne(task => task.Tortoise)

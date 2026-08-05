@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(WebAPIDBContext))]
-    [Migration("20260804083206_InitialSqlServer")]
+    [Migration("20260805000059_InitialSqlServer")]
     partial class InitialSqlServer
     {
         /// <inheritdoc />
@@ -371,6 +371,7 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<decimal?>("WeightGrams")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TortoiseId");
@@ -565,7 +566,7 @@ namespace backend.Migrations
                     b.HasOne("backend.Models.User", "Owner")
                         .WithMany("DailyCareTasks")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("backend.Models.Tortoise", "Tortoise")
