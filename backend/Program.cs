@@ -128,7 +128,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "https://localhost:5173"
+                "https://localhost:5173",
+                "https://shellquest-frontend-yuely-gkauczemb8fqb4gb.eastasia-01.azurewebsites.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -150,11 +151,14 @@ using (IServiceScope scope =
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.MapOpenApi();
+//    app.MapScalarApiReference();
+//}
+
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 
 app.UseStaticFiles();
