@@ -139,14 +139,23 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-using (IServiceScope scope =
-    app.Services.CreateScope())
+try
 {
+    using IServiceScope scope =
+        app.Services.CreateScope();
+
     WebAPIDBContext context =
         scope.ServiceProvider
             .GetRequiredService<WebAPIDBContext>();
 
     await ShopDataSeeder.SeedAsync(context);
+}
+catch (Exception exception)
+{
+    app.Logger.LogError(
+        exception,
+        "Shop data seeding failed during startup."
+    );
 }
 
 
