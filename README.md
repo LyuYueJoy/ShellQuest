@@ -313,7 +313,7 @@ dotnet ef database update
 
 dotnet run
 ```
-
+https://localhost:7215/scalar/v1
 ---
 
 ## Frontend
