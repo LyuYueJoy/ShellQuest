@@ -148,13 +148,17 @@ try
         scope.ServiceProvider
             .GetRequiredService<WebAPIDBContext>();
 
+    // Apply any pending EF Core migrations
+    await context.Database.MigrateAsync();
+
+    // Seed initial shop data
     await ShopDataSeeder.SeedAsync(context);
 }
 catch (Exception exception)
 {
     app.Logger.LogError(
         exception,
-        "Shop data seeding failed during startup."
+        "Database migration or shop data seeding failed during startup."
     );
 }
 
