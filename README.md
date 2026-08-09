@@ -196,6 +196,11 @@ Frontend testing:
 
 - React Testing Library
 - Vitest
+```bash
+cd frontend
+
+npm run test
+```
 
 Backend testing:
 
@@ -203,7 +208,11 @@ Backend testing:
 - Repository testing
 - Controller testing
 - Business logic testing
+```bash
+cd backend.Tests
 
+dotnet test
+```
 ---
 
 # Advanced Requirements
